@@ -6,10 +6,11 @@ from torch.utils.data import Dataset
 from torchaudio.transforms import Resample, MFCC
 from collections import Counter
 import random
+from torchaudio.utils import download_asset
 
 
 class WavDataset(Dataset):
-    def __init__(self, file_list, label_list, sample_rate=44100, transform=None, noise=None):
+    def __init__(self, file_list, label_list, sample_rate=44100, transform=None, noise=None, reverb=False):
         """
         Args:
             file_list (list): List of audio file paths.
@@ -22,6 +23,7 @@ class WavDataset(Dataset):
         self.sample_rate = sample_rate
         self.transform = transform
         self.noise=noise
+        self.reverb = reverb
 
     def __len__(self):
         return len(self.file_list)
@@ -39,16 +41,19 @@ class WavDataset(Dataset):
             waveform = resampler(waveform)
 
         if self.noise is not None:
-            snr_dbs = torch.Tensor([10.0])
-            waveform = F.add_noise(waveform, self.noise, snr=snr_dbs)
-        
+            max_start = self.noise.size(1) - sr
+            start_sample = random.randint(0, max_start)
+            # print("start_sample", start_sample)
+            noise_segment = self.noise[:, start_sample:start_sample + sr]
+            snr_dbs = torch.Tensor([1.0])
+            waveform = F.add_noise(waveform, noise_segment, snr=snr_dbs)
+
         # Apply transform if provided
         if self.transform:
             waveform = self.transform(waveform)
 
-        mean = waveform.mean(dim=2)
 
-        return mean.squeeze(0), label  # Return waveform tensor and class label
+        return waveform, label  # Return waveform tensor and class label
 
 
     
@@ -81,15 +86,14 @@ def load_files_from_subdirectories(root_dir):
     return file_paths, labels, class_mapping
 
 
-def get_dataset(directory, sr, transform=None, noise=False):
+def get_dataset(directory, sr, transform=None, noise_add=False):
     
 
     all_files, all_labels, class_mapping = load_files_from_subdirectories(directory)
-    # print("Class Mapping:", class_mapping)
+    print("Class Mapping:", class_mapping)
 
-    noise_segment = None
-    
-    if noise:
+    noise = None
+    if noise_add:
         noise, noise_sr = torchaudio.load('./Data/house-party-inside-voices-talking-10-62063.wav')
         if noise_sr != sr:
             resampler = Resample(orig_freq=noise_sr, new_freq=sr)
@@ -99,13 +103,7 @@ def get_dataset(directory, sr, transform=None, noise=False):
             # print("noise shape", noise.shape)
             noise = noise.mean(dim=0, keepdim=True)
 
-        max_start = noise.size(1) - sr
-        start_sample = random.randint(0, max_start)
-
-        noise_segment = noise[:, start_sample:start_sample + sr]
-        # print("noise", noise_segment.size())
-
-    dataset = WavDataset(all_files, all_labels, sr, transform=transform, noise=noise_segment)
+    dataset = WavDataset(all_files, all_labels, sr, transform=transform, noise=noise)
     return dataset
 
 

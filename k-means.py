@@ -5,12 +5,8 @@ from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 from Dataset import get_dataset
 from torchaudio.transforms import MFCC
 from util import get_features_labels
+from feature_extractor import MelSpectrogramPCA, mfcc_transform
 
-mfcc_transform = MFCC(
-    sample_rate=44100,  # Match dataset sample rate
-    n_mfcc=13,  # Number of MFCC coefficients
-    melkwargs={"n_fft": 400, "hop_length": 160, "n_mels": 40}
-)
 
 def evaluate_clustering(y_true, y_pred):
     ari = adjusted_rand_score(y_true, y_pred)
@@ -27,8 +23,17 @@ if __name__ == "__main__":
     if input("Do you want to add noise? (y/n): ") == 'y':
         noise = True
 
-    train_set = get_dataset(train_directory, sample_rate, transform=mfcc_transform, noise=noise)
-    test_set = get_dataset(test_directory, sample_rate, transform=mfcc_transform, noise=noise)
+    input_size=13*2
+    transform = mfcc_transform
+    
+    if input("MFCC?: ") == 'n':
+        pca_components=20
+        transform = MelSpectrogramPCA(sample_rate=sample_rate, pca_components=pca_components)
+        input_size=pca_components*2
+
+    train_set = get_dataset(train_directory, sample_rate, transform=transform, noise_add=noise)
+    test_set = get_dataset(test_directory, sample_rate, transform=transform, noise_add=noise)
+
 
     train_features, train_labels = get_features_labels(train_set)
     test_features, test_labels = get_features_labels(test_set)
