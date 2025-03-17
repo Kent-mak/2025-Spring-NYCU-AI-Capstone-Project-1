@@ -10,16 +10,14 @@
 <br>
 
 ![ceramic example](images/Ceramic%2015.png)
-<center><strong>Figure 1:</strong> Example waveform of class Ceramic.</center>
-
+<div align="center"><strong>Figure 1:</strong> Example waveform of class Ceramic.</div>
 <br>
 
 ![Wood example](images/wood%2015.png)
-<center><strong>Figure 1:</strong> Example waveform of class Wood.</center>
+<div align="center"><strong>Figure 2:</strong> Example waveform of class Wood.</div>
 
 <br>
 
 ![Marble example](images/marble%2015.png)
-<center><strong>Figure 1:</strong> Example waveform of class Marble.</center>
-
+<div align="center"><strong>Figure 3:</strong> Example waveform of class Marble.</div>
 
