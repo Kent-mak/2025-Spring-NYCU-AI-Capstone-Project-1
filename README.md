@@ -21,3 +21,14 @@
 ![Marble example](images/marble%2015.png)
 <div align="center"><strong>Figure 3:</strong> Example waveform of class Marble.</div>
 
+| ![Ceramic Example](images/Ceramic%2015.png) |
+|:--:|
+| **Figure 1:** Example waveform of class Ceramic. |
+
+| ![Wood Example](images/wood%2015.png) |
+|:--:|
+| **Figure 2:** Example waveform of class Wood. |
+
+| ![Marble Example](images/marble%2015.png) |
+|:--:|
+| **Figure 3:** Example waveform of class Marble. |
